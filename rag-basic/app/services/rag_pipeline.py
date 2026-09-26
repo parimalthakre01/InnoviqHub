@@ -21,10 +21,10 @@ def query_rag(question: str, top_k: int = None) -> dict:
     query_vector = nugen.embed(question)
     retrieved = vs.search(query_vector, top_k)
 
-    # filtered = [r for r in retrieved if r["score"] >= settings.SIMILARITY_THRESHOLD]
-    context = "\n\n".join(r["text"] for r in retrieved) or "No relevant context found."
+    filtered = [r for r in retrieved if r["score"] >= settings.SIMILARITY_THRESHOLD]
+    context = "\n\n".join(r["text"] for r in filtered) or "No relevant context found."
 
     user_message = f"Context:\n{context}\n\nQuestion: {question}"
     answer = nugen.chat(SYSTEM_PROMPT, user_message)
 
-    return {"answer": answer, "sources": question}
+    return {"answer": answer, "sources": filtered}
