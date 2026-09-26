@@ -4,13 +4,14 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # Nugen API
     NUGEN_API_KEY: str
-    NUGEN_BASE_URL: str = "https://api.nugen.in/inference"
-    NUGEN_EMBED_MODEL: str = "nugen-flash-embed"
-    NUGEN_CHAT_MODEL: str = "nugen-flash-instruct"
+    NUGEN_BASE_URL: str = "https://api.nugen.in/api/v3/inference"
+    NUGEN_EMBED_MODEL: str = "qwen3-embedding-8b"
+    NUGEN_CHAT_MODEL: str = "qwen-v2p5-0p5b-instruct"
 
     # Qdrant
+    QDRANT_URL: str = ""
     QDRANT_COLLECTION: str = "rag_documents"
-    VECTOR_SIZE: int = 768
+    VECTOR_SIZE: int = 4096
 
     # RAG
     TOP_K: int = 5

@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class IngestRequest(BaseModel):
-    text: str
+class AddData(BaseModel):
+    text: str # required 
     metadata: Optional[dict] = {}
 
 
