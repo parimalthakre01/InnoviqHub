@@ -1,3 +1,4 @@
+import json
 import httpx
 from app.core.config import settings
 
@@ -19,8 +20,9 @@ def embed(text: str) -> list[float]:
 
 
 def chat(system_prompt: str, user_message: str) -> str:
-    with httpx.Client() as client:
-        response = client.post(
+    with httpx.Client(timeout=120.0) as client:
+        with client.stream(
+            "POST",
             f"{settings.NUGEN_BASE_URL}/chat/completions",
             headers=HEADERS,
             json={
@@ -29,7 +31,19 @@ def chat(system_prompt: str, user_message: str) -> str:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message},
                 ],
+                "stream": True,
             },
-        )
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
+        ) as response:
+            response.raise_for_status()
+            result = []
+            for line in response.iter_lines():
+                if not line.startswith("data:"):
+                    continue
+                data = line[len("data:"):].strip()
+                if data == "[DONE]":
+                    break
+                chunk = json.loads(data)
+                delta = chunk["choices"][0]["delta"].get("content", "")
+                if delta:
+                    result.append(delta)
+            return "".join(result)
