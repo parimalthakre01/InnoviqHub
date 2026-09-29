@@ -19,6 +19,13 @@ def embed(text: str) -> list[float]:
         return response.json()["data"][0]["embedding"]
 
 
+ENHANCE_PROMPT = "Rewrite the question to be more specific for document retrieval. Return only the rewritten question."
+
+
+def enhance_query(question: str) -> str:
+    return chat(ENHANCE_PROMPT, question)
+
+
 def chat(system_prompt: str, user_message: str) -> str:
     with httpx.Client(timeout=120.0) as client:
         with client.stream(

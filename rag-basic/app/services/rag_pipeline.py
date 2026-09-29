@@ -18,13 +18,16 @@ def ingest_document(text: str, metadata: dict = {}) -> int:
 
 def query_rag(question: str, top_k: int = None) -> dict:
     # top_k = top_k or settings.TOP_K
+    question = nugen.enhance_query(question)
+    # generate vectors for question
     query_vector = nugen.embed(question)
     retrieved = vs.search(query_vector, top_k)
-
-    filtered = [r for r in retrieved if r["score"] >= settings.SIMILARITY_THRESHOLD]
-    context = "\n\n".join(r["text"] for r in filtered) or "No relevant context found."
-
+    # add reranker here
+    # filtered = [r for r in retrieved if r["score"] >= settings.SIMILARITY_THRESHOLD]
+    context = "\n\n".join(r["text"] for r in retrieved) or "No relevant context found."
+    print(f"Retrieved {len(retrieved)} chunks for question: {question}")
     user_message = f"Context:\n{context}\n\nQuestion: {question}"
+    print(f"User message for LLM:\n{user_message}")
     answer = nugen.chat(SYSTEM_PROMPT, user_message)
 
-    return {"answer": answer, "sources": filtered}
+    return {"answer": answer, "sources": retrieved}
